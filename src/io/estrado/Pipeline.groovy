@@ -40,12 +40,12 @@ def helmDeploy(Map args) {
     if (args.dry_run) {
         println "Running dry-run deployment"
 
-        sh "helm upgrade --dry-run --install ${args.name} ${args.chart_dir} --set imageTag=${args.version_tag},replicas=${args.replicas},cpu=${args.cpu},memory=${args.memory},ingress.hostname=${args.hostname} --namespace=${namespace}"
+        sh "helm upgrade --dry-run --install ${args.name} ${args.chart_dir} --set image.tag=${args.image_tag} -f /opt/wapp/values/mgmt-values.yaml"
     } else {
         println "Running deployment"
 
         // reimplement --wait once it works reliable
-        sh "helm upgrade --install ${args.name} ${args.chart_dir} --set imageTag=${args.version_tag},replicas=${args.replicas},cpu=${args.cpu},memory=${args.memory},ingress.hostname=${args.hostname} --namespace=${namespace}"
+        sh "helm upgrade --install ${args.name} ${args.chart_dir} --set image.tag=${args.image_tag} -f /opt/wapp/values/mgmt-values.yaml"
 
         // sleeping until --wait works reliably
         sleep(20)
@@ -162,7 +162,7 @@ def getContainerRepoAcct(config) {
     println "setting container registry creds according to Jenkinsfile.json"
     def String acct
 
-    if (env.BRANCH_NAME == 'master') {
+    if (env.BRANCH_NAME == 'mgmt-kube') {
         acct = config.container_repo.master_acct
     } else {
         acct = config.container_repo.alt_acct
