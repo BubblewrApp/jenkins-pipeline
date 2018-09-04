@@ -18,7 +18,7 @@ def helmLint(String chart_dir) {
 def helmConfig() {
     //setup helm connectivity to Kubernetes API and Tiller
     println "initiliazing helm client"
-    sh "helm init"
+    sh "helm init --client-only"
     println "checking client/server version"
     sh "helm version"
 }
@@ -40,12 +40,12 @@ def helmDeploy(Map args) {
     if (args.dry_run) {
         println "Running dry-run deployment"
 
-        sh "helm upgrade --dry-run --install ${args.name} ${args.chart_dir} --set image.tag=${args.image_tag} -f /opt/wapp/values/mgmt-values.yaml"
+        sh "helm upgrade --dry-run --install ${args.name} ${args.chart_dir} --set image.tag=${args.image_tag} --namespace=default -f /opt/wapp/values/mgmt-values.yaml"
     } else {
         println "Running deployment"
 
         // reimplement --wait once it works reliable
-        sh "helm upgrade --install ${args.name} ${args.chart_dir} --set image.tag=${args.image_tag} -f /opt/wapp/values/mgmt-values.yaml"
+        sh "helm upgrade --install ${args.name} ${args.chart_dir} --set image.tag=${args.image_tag} --namespace=default -f /opt/wapp/values/mgmt-values.yaml"
 
         // sleeping until --wait works reliably
         sleep(20)
